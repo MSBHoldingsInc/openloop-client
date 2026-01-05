@@ -224,7 +224,7 @@ field :prescriptions, resolver: Queries::Prescriptions
 
 ## Testing the Gem
 
-### Method 1: Using Rails Console
+### Using Rails Console
 
 After installing and configuring the gem, test it in your Rails console:
 
@@ -309,27 +309,6 @@ patient_id = result.dig("data", "createClient", "user", "id")
 puts "Created patient with ID: #{patient_id}"
 
 ```
-
-### Troubleshooting Tests
-
-| Issue | Solution |
-|-------|----------|
-| "Unauthorized" error | Check API keys in `.env` or credentials |
-| "Connection refused" | Verify API URLs are correct for your environment |
-| Empty results | Use real patient data or create test patients first |
-| GraphQL errors | Check query syntax in GraphiQL first |
-| Gem not loading | Run `bundle install` and restart Rails server |
-
-### Quick Verification Checklist
-
-- [ ] Gem installed: `bundle list | grep openloop-client`
-- [ ] Configuration loaded: `rails runner "puts OpenLoop::Client.configuration.inspect"`
-- [ ] GraphQL endpoint mounted: `rails routes | grep graphql`
-- [ ] GraphiQL accessible: Visit `/graphiql` in browser
-- [ ] API credentials valid: Test in Rails console
-- [ ] Can search patients: Test via GraphiQL or console
-- [ ] Can query patient: Test with real patient ID
-- [ ] Mutations work: Test create/update operations
 
 ## Development
 
