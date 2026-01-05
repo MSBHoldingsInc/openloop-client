@@ -173,7 +173,7 @@ new_patient = healthie.create_patient({
   first_name: "John",
   last_name: "Doe",
   email: "john@example.com",
-  phone_number: "555-1234",
+  phone_number: "555-123-4567",
   dietitian_id: "789"
 })
 patient_id = new_patient.dig("data", "createClient", "user", "id")
