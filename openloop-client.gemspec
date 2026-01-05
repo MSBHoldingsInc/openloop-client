@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary = "GraphQL API client for OpenLoop Health APIs"
   spec.description = "A Rails gem that provides GraphQL interface to OpenLoop Health and Healthie APIs for patient management, forms, and appointments."
   spec.homepage = "https://github.com/MSBHoldingsInc/openloop-client"
-  spec.license = "MIT"
+  spec.license = "UNLICENSED"
   spec.required_ruby_version = ">= 3.2.0"
 
   spec.metadata["homepage_uri"] = spec.homepage
