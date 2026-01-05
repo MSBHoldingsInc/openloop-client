@@ -35,19 +35,7 @@ bundle install
 ### Option 2: Install from git (Once pushed to repository)
 
 ```ruby
-gem 'openloop-client', git: 'https://github.com/openloop/openloop-client'
-```
-
-Then execute:
-
-```bash
-bundle install
-```
-
-### Option 3: Install from RubyGems (Once published)
-
-```ruby
-gem 'openloop-client'
+gem 'openloop-client', git: 'https://github.com/MSBHoldingsInc/openloop-client'
 ```
 
 Then execute:
@@ -917,7 +905,7 @@ gem install openloop-client-0.1.0.gem
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/openloop/openloop-client.
+Bug reports and pull requests are welcome on GitHub at https://github.com/MSBHoldingsInc/openloop-client
 
 ## License
 

@@ -9,7 +9,7 @@ This guide will help you get started with the OpenLoop::Client gem in minutes.
 ```ruby
 gem 'openloop-client', path: '/path/to/openloop-client'
 # Or from git once published
-# gem 'openloop-client', git: 'https://github.com/openloop/openloop-client'
+# gem 'openloop-client', git: 'https://github.com/MSBHoldingsInc/openloop-client'
 ```
 
 ### 2. Install dependencies
