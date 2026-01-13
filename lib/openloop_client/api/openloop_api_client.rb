@@ -25,8 +25,8 @@ module OpenLoop
           handle_response(response)
         end
 
-        def get_lab_facilities(zip_code:, radius: 50)
-          query_params = { zip_code: zip_code, radius: radius }
+        def get_lab_facilities(zip_code:, radius: 50, include_psc_details: true)
+          query_params = { zip_code: zip_code, radius: radius, include_psc_details: include_psc_details }
           query_string = URI.encode_www_form(query_params)
           url = "https://api.integrations.clinic.openloophealth.com/labs/facilities?#{query_string}"
 
