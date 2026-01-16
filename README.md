@@ -10,7 +10,8 @@ A Rails gem that provides a GraphQL interface to OpenLoop Health and Healthie AP
 - Metric entries (weight, etc.)
 - Invoice creation
 - TRT form submissions
-- Appointment management
+- Appointment management (list appointments, get appointment details)
+- Lab test results retrieval (via Vital API)
 - GraphiQL interface for API exploration
 - HTTParty-based REST client
 - Configurable for staging and production environments
@@ -54,13 +55,13 @@ Create a new file `config/initializers/openloop_client.rb` in your Rails app:
 OpenLoop::Client.configure do |config|
   # Healthie API Configuration
   config.healthie_api_key = ENV['HEALTHIE_API_KEY']
-  config.healthie_url = ENV['HEALTHIE_URL'] # Optional, defaults based on environment
   config.healthie_authorization_shard = ENV['HEALTHIE_AUTHORIZATION_SHARD'] # Optional
 
   # OpenLoop API Configuration
   config.openloop_api_key = ENV['OPENLOOP_API_KEY']
-  config.openloop_questionnaire_url = ENV['OPENLOOP_QUESTIONNAIRE_URL'] # Optional
-  config.openloop_booking_widget_url = ENV['OPENLOOP_BOOKING_WIDGET_URL']
+
+  # Vital API Configuration (for lab results)
+  config.vital_api_key = ENV['VITAL_API_KEY']
 
   # Environment (:staging or :production)
   config.environment = Rails.env.production? ? :production : :staging
@@ -79,12 +80,14 @@ HEALTHIE_API_KEY=your_healthie_api_key_here
 OPENLOOP_API_KEY=your_openloop_api_key_here
 HEALTHIE_AUTHORIZATION_SHARD=your_shard_id_here
 OPENLOOP_BOOKING_WIDGET_URL=https://booking-staging.openloophealth.com
+VITAL_API_KEY=your_vital_api_key_here
 
 # For Production Environment (comment out staging and uncomment these)
 # HEALTHIE_API_KEY=your_production_healthie_api_key
 # OPENLOOP_API_KEY=your_production_openloop_api_key
 # HEALTHIE_AUTHORIZATION_SHARD=your_production_shard_id
 # OPENLOOP_BOOKING_WIDGET_URL=https://booking.openloophealth.com
+# VITAL_API_KEY=your_production_vital_api_key
 ```
 
 **Using Rails Credentials:**
@@ -100,7 +103,9 @@ healthie:
 
 openloop:
   api_key: your_openloop_api_key_here
-  booking_widget_url: https://booking-staging.openloophealth.com
+
+vital:
+  api_key: your_vital_api_key_here
 ```
 
 Then update your initializer to use credentials:
@@ -110,7 +115,7 @@ OpenLoop::Client.configure do |config|
   config.healthie_api_key = Rails.application.credentials.dig(:healthie, :api_key)
   config.healthie_authorization_shard = Rails.application.credentials.dig(:healthie, :authorization_shard)
   config.openloop_api_key = Rails.application.credentials.dig(:openloop, :api_key)
-  config.openloop_booking_widget_url = Rails.application.credentials.dig(:openloop, :booking_widget_url)
+  config.vital_api_key = Rails.application.credentials.dig(:vital, :api_key)
   config.environment = Rails.env.production? ? :production : :staging
 end
 ```
@@ -122,12 +127,17 @@ end
 | `healthie_api_key` | Yes* | Basic auth key for Healthie API | nil |
 | `openloop_api_key` | Yes* | Bearer token for OpenLoop API | nil |
 | `healthie_authorization_shard` | No | Shard ID for multi-tenant Healthie | nil |
-| `healthie_url` | No | Healthie API endpoint | Auto-set by environment |
-| `openloop_questionnaire_url` | No | OpenLoop forms API endpoint | Auto-set by environment |
-| `openloop_booking_widget_url` | Yes | OpenLoop booking widget URL | nil |
+| `vital_api_key` | No | API key for Vital lab results | nil |
 | `environment` | No | :staging or :production | :staging |
 
 *Either `healthie_api_key` OR `openloop_api_key` + `healthie_authorization_shard` is required
+
+**Note:** The following values are automatically configured based on environment and cannot be overridden:
+- **Healthie URL**: `api.gethealthie.com` (prod) / `staging-api.gethealthie.com` (staging)
+- **Vital API URL**: `api.tryvital.io/v3` (prod) / `api.sandbox.tryvital.io/v3` (staging)
+- **OpenLoop Questionnaire URL**: Auto-configured per environment
+- **Booking Widget URL**: Auto-configured per environment
+- **Org ID, Provider ID, Form IDs, Appointment Type IDs**: Auto-configured per environment
 
 ## Direct API Client Usage
 
@@ -152,6 +162,12 @@ patient = healthie.get_patient("123456")
 # Search patients
 results = healthie.search_patients("john")
 
+# Get appointment details
+appointment = healthie.get_appointment("2037619")
+appointment_data = appointment.dig("data", "appointment")
+puts "Appointment Date: #{appointment_data['date']}"
+puts "Provider: #{appointment_data.dig('provider', 'name')}"
+
 # OpenLoop Client
 openloop = OpenLoop::Client::API::OpenloopApiClient.new
 
@@ -162,6 +178,15 @@ response = openloop.create_trt_form({
   modality: "sync_visit",
   service_type: "macro_trt"
 })
+
+# Junction Client (for Vital lab results)
+junction = OpenLoop::Client::API::JunctionApiClient.new
+
+# Get lab test results (requires Vital API key)
+order_id = "550e8400-e29b-41d4-a716-446655440000"
+results = junction.get_lab_results(order_id: order_id)
+puts results["metadata"]
+puts results["results"]
 ```
 
 ## Architecture
@@ -173,7 +198,8 @@ lib/openloop_client/
 ├── api/
 │   ├── base_client.rb          # Base HTTP client with error handling
 │   ├── healthie_client.rb      # Healthie GraphQL API wrapper
-│   └── openloop_api_client.rb  # OpenLoop REST API wrapper
+│   ├── openloop_api_client.rb  # OpenLoop REST API wrapper
+│   └── junction_api_client.rb  # Junction/Vital API wrapper (lab results)
 ├── graphql/
 │   ├── types/                  # GraphQL type definitions
 │   ├── mutations/              # GraphQL mutations

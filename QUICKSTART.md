@@ -31,8 +31,8 @@ OpenLoop::Client.configure do |config|
   config.openloop_api_key = ENV['OPENLOOP_API_KEY']
   config.healthie_authorization_shard = ENV['HEALTHIE_AUTHORIZATION_SHARD']
 
-  # OpenLoop Services
-  config.openloop_booking_widget_url = ENV['OPENLOOP_BOOKING_WIDGET_URL']
+  # Vital API (optional - for lab results)
+  config.vital_api_key = ENV['VITAL_API_KEY']
 
   # Environment
   config.environment = Rails.env.production? ? :production : :staging
@@ -48,7 +48,7 @@ Create `.env` file (use dotenv gem or Rails credentials):
 HEALTHIE_API_KEY=your_healthie_api_key_here
 OPENLOOP_API_KEY=your_openloop_api_key_here
 HEALTHIE_AUTHORIZATION_SHARD=your_shard_id_here
-OPENLOOP_BOOKING_WIDGET_URL=https://booking-staging.openloophealth.com
+VITAL_API_KEY=your_vital_api_key_here
 ```
 
 ### 5. Set up GraphQL endpoint
@@ -168,6 +168,12 @@ puts patients.dig("data", "users")
 patient = healthie.get_patient("123456")
 puts patient.dig("data", "user", "name")
 
+# Get appointment details
+appointment = healthie.get_appointment("2037619")
+appointment_data = appointment.dig("data", "appointment")
+puts "Appointment Date: #{appointment_data['date']}"
+puts "Provider: #{appointment_data.dig('provider', 'name')}"
+
 # Create a new patient
 new_patient = healthie.create_patient({
   first_name: "John",
@@ -261,6 +267,23 @@ healthie.create_metric_entry({
   user_id: patient_id,
   created_at: Date.today.strftime("%-m/%-d/%Y")
 })
+```
+
+### 5. Get Lab Test Results
+
+```ruby
+junction = OpenLoop::Client::API::JunctionApiClient.new
+
+# Retrieve lab results using Vital order ID
+order_id = "550e8400-e29b-41d4-a716-446655440000"
+results = junction.get_lab_results(order_id: order_id)
+
+# Access results
+puts "Patient: #{results['metadata']['patient_name']}"
+puts "Collection Date: #{results['metadata']['sample_collection_date']}"
+results["results"].each do |biomarker|
+  puts "#{biomarker['name']}: #{biomarker['value']} #{biomarker['unit']}"
+end
 ```
 
 ## GraphQL Examples

@@ -3,12 +3,12 @@
 ## Configuration Example
 
 ```ruby
-config/initializers/openloop_client.rb
+# config/initializers/openloop_client.rb
 OpenLoop::Client.configure do |config|
   config.healthie_api_key = ENV['HEALTHIE_API_KEY'] # optional
   config.openloop_api_key = ENV['OPENLOOP_API_KEY']
   config.healthie_authorization_shard = ENV['HEALTHIE_AUTHORIZATION_SHARD']
-  config.openloop_booking_widget_url = ENV['OPENLOOP_BOOKING_WIDGET_URL'] # optional
+  config.vital_api_key = ENV['VITAL_API_KEY']
   config.environment = :staging
 end
 ```
@@ -119,9 +119,63 @@ puts "Patient: #{patient.dig('data', 'user', 'name')}"
 appointments = healthie.get_patient_appointments(patient_id, "all")
 puts "Appointments: #{appointments.dig('data', 'appointments').count}"
 
-# Step 10: Get Lab Facilities (At-Home vs Walk-In)
+# Step 10: Get Specific Appointment Details
+if appointments.dig('data', 'appointments')&.any?
+  appointment_id = appointments.dig('data', 'appointments', 0, 'id')
+  appointment_details = healthie.get_appointment(appointment_id)
+  appointment_data = appointment_details.dig('data', 'appointment')
+  puts "Appointment Date: #{appointment_data['date']}"
+  puts "Provider: #{appointment_data.dig('provider', 'name')}"
+  puts "Length: #{appointment_data['length']} minutes"
+end
+
+# Step 11: Get Lab Facilities (At-Home vs Walk-In)
 lab_facilities = openloop.get_lab_facilities(zip_code: "50309", radius: 50)
 puts "Lab Facilities: #{lab_facilities}"
+
+# Step 12: Get Lab Test Results (requires order_id from Vital)
+junction = OpenLoop::Client::API::JunctionApiClient.new
+order_id = "550e8400-e29b-41d4-a716-446655440000"
+lab_results = junction.get_lab_results(order_id: order_id)
+puts "Lab Results Metadata: #{lab_results['metadata']}"
+puts "Biomarker Results: #{lab_results['results']}"
+```
+
+## Appointment Details API
+
+### Get Specific Appointment
+
+```ruby
+# Initialize Healthie client
+healthie = OpenLoop::Client::API::HealthieClient.new
+
+# Get specific appointment details
+appointment_id = "123456"
+appointment = healthie.get_appointment(appointment_id)
+
+# Access appointment data
+appointment_data = appointment.dig("data", "appointment")
+puts "Appointment ID: #{appointment_data['id']}"
+puts "Date: #{appointment_data['date']}"
+puts "Length: #{appointment_data['length']} minutes"
+puts "Timezone: #{appointment_data['timezone_abbr']}"
+
+# Access provider information
+provider = appointment_data['provider']
+puts "\nProvider:"
+puts "  Name: #{provider['name']}"
+puts "  Email: #{provider['email']}"
+puts "  NPI: #{provider['npi']}"
+puts "  Organization: #{provider.dig('organization', 'name')}"
+
+# Access attendees
+appointment_data['attendees'].each do |attendee|
+  puts "\nAttendee:"
+  puts "  Name: #{attendee['full_name']}"
+  puts "  Email: #{attendee['email']}"
+  puts "  Phone: #{attendee['phone_number']}"
+  puts "  DOB: #{attendee['dob']}"
+end
 ```
 
 ## Lab Facilities API
@@ -140,6 +194,35 @@ response = openloop.get_lab_facilities(zip_code: "50309")
 
 # Response will contain available lab facilities
 puts response
+```
+
+## Lab Test Results API
+
+### Get Lab Test Results from Vital
+
+```ruby
+# Initialize Junction API client
+junction = OpenLoop::Client::API::JunctionApiClient.new
+
+# Get lab test results for a specific order
+# Note: Requires vital_api_key to be configured
+order_id = "550e8400-e29b-41d4-a716-446655440000" # UUID format
+results = junction.get_lab_results(order_id: order_id)
+
+# Access metadata (patient info)
+metadata = results["metadata"]
+puts "Patient: #{metadata['patient']}"
+puts "Age: #{metadata['age']}"
+puts "Report Date: #{metadata['date_reported']}"
+
+# Access individual biomarker results
+results["results"].each do |biomarker|
+  puts "\n#{biomarker['name']}:"
+  puts "  Value: #{biomarker['value']} #{biomarker['unit']}"
+  puts "  Reference Range: #{biomarker['min_range_value']} - #{biomarker['max_range_value']}"
+  puts "  Status: #{biomarker['is_above_max_range'] ? 'High' : biomarker['is_below_min_range'] ? 'Low' : 'Normal'}"
+end
+
 ```
 
 ## GraphQL Query Examples
@@ -463,6 +546,62 @@ query GetPatientHistory($patientId: ID!) {
 }
 ```
 
+### 9. Get Specific Appointment Details
+
+```graphql
+query GetAppointment($appointmentId: ID!) {
+  appointment(id: $appointmentId) {
+    id
+    date
+    length
+    updatedAt
+    timezoneAbbr
+    provider {
+      name
+      id
+      email
+      npi
+      organization {
+        name
+        id
+      }
+    }
+    appointmentType {
+      id
+    }
+    requestedPayment {
+      id
+    }
+    attendees {
+      id
+      firstName
+      lastName
+      fullName
+      email
+      phoneNumber
+      dob
+      gender
+      createdAt
+      updatedAt
+    }
+  }
+}
+
+# Variables
+{
+  "appointmentId": "2037619"
+}
+
+# Example Usage in Ruby
+appointment = OpenLoop::Client::GraphQL::Schema.execute(
+  query_string,
+  variables: { appointmentId: "2037619" }
+)
+appointment_data = appointment.dig("data", "appointment")
+puts "Appointment Date: #{appointment_data['date']}"
+puts "Provider: #{appointment_data.dig('provider', 'name')}"
+```
+
 ## Error Handling Examples
 
 ```ruby
@@ -484,6 +623,7 @@ OpenLoop::Client.configure do |config|
   config.environment = :production
   config.healthie_api_key = ENV['HEALTHIE_PROD_API_KEY']
   config.openloop_api_key = ENV['OPENLOOP_PROD_API_KEY']
+  config.vital_api_key = ENV['VITAL_PROD_API_KEY']
 end
 
 # config/environments/staging.rb
@@ -491,5 +631,6 @@ OpenLoop::Client.configure do |config|
   config.environment = :staging
   config.healthie_api_key = ENV['HEALTHIE_STAGING_API_KEY']
   config.openloop_api_key = ENV['OPENLOOP_STAGING_API_KEY']
+  config.vital_api_key = ENV['VITAL_STAGING_API_KEY']
 end
 ```

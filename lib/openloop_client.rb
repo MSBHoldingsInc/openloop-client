@@ -8,6 +8,7 @@ require_relative "openloop_client/configuration"
 require_relative "openloop_client/api/base_client"
 require_relative "openloop_client/api/healthie_client"
 require_relative "openloop_client/api/openloop_api_client"
+require_relative "openloop_client/api/junction_api_client"
 require_relative "openloop_client/engine" if defined?(Rails)
 require_relative "openloop_client/graphql/types/base_object"
 require_relative "openloop_client/graphql/types/location_type"

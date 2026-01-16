@@ -262,6 +262,50 @@ module OpenLoop
           execute_query(query, { user_id: user_id, filter: filter })
         end
 
+        def get_appointment(appointment_id)
+          query = <<~GRAPHQL
+            query Appointment($id: ID!) {
+              appointment(id: $id) {
+                id
+                length
+                date
+                updated_at
+                timezone_abbr
+                provider {
+                  name
+                  id
+                  email
+                  npi
+                  organization {
+                    name
+                    id
+                  }
+                }
+                appointment_type {
+                  id
+                }
+                requested_payment {
+                  id
+                }
+                attendees {
+                  id
+                  first_name
+                  last_name
+                  full_name
+                  email
+                  phone_number
+                  dob
+                  gender
+                  created_at
+                  updated_at
+                }
+              }
+            }
+          GRAPHQL
+
+          execute_query(query, { id: appointment_id })
+        end
+
         private
 
         def headers

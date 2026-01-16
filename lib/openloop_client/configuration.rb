@@ -4,57 +4,49 @@ module OpenLoop
   module Client
     class Configuration
       attr_accessor :healthie_api_key,
-                    :healthie_url,
                     :healthie_authorization_shard,
-                    :openloop_questionnaire_url,
-                    :openloop_booking_widget_base_url,
                     :openloop_api_key,
-                    :environment,
-                    :org_id,
-                    :provider_id,
-                    :form_ids,
-                    :appointment_type_ids
+                    :vital_api_key,
+                    :environment
 
       def initialize
         @healthie_api_key = nil
-        @healthie_url = nil
         @healthie_authorization_shard = nil
-        @openloop_questionnaire_url = nil
-        @openloop_booking_widget_base_url = nil
         @openloop_api_key = nil
+        @vital_api_key = nil
         @environment = :staging
-        @org_id = nil
-        @provider_id = nil
-        @form_ids = {}
-        @appointment_type_ids = {}
       end
 
       def healthie_url
-        @healthie_url || default_healthie_url
+        default_healthie_url
       end
 
       def openloop_questionnaire_url
-        @openloop_questionnaire_url || default_questionnaire_url
+        default_questionnaire_url
       end
 
       def openloop_booking_widget_base_url
-        @openloop_booking_widget_base_url || default_booking_widget_base_url
+        default_booking_widget_base_url
       end
 
       def org_id
-        @org_id || default_org_id
+        default_org_id
       end
 
       def provider_id
-        @provider_id || default_provider_id
+        default_provider_id
       end
 
       def form_ids
-        @form_ids.empty? ? default_form_ids : @form_ids
+        default_form_ids
       end
 
       def appointment_type_ids
-        @appointment_type_ids.empty? ? default_appointment_type_ids : @appointment_type_ids
+        default_appointment_type_ids
+      end
+
+      def vital_api_url
+        default_vital_api_url
       end
 
       # Helper method to build booking widget URL
@@ -83,6 +75,12 @@ module OpenLoop
         environment == :production ?
           "https://express.patientcare.openloophealth.com/book-appointment" :
           "https://express.care-staging.openloophealth.com/book-appointment"
+      end
+
+      def default_vital_api_url
+        environment == :production ?
+          "https://api.tryvital.io/v3" :
+          "https://api.sandbox.tryvital.io/v3"
       end
 
       def default_org_id
