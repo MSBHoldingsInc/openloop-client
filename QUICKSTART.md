@@ -173,6 +173,7 @@ appointment = healthie.get_appointment("2037619")
 appointment_data = appointment.dig("data", "appointment")
 puts "Appointment Date: #{appointment_data['date']}"
 puts "Provider: #{appointment_data.dig('provider', 'name')}"
+puts "PM Status: #{appointment_data['pm_status']}"
 
 # Create a new patient
 new_patient = healthie.create_patient({

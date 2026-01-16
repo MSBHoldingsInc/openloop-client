@@ -269,8 +269,11 @@ module OpenLoop
                 id
                 length
                 date
+                pm_status
+                user_id
                 updated_at
                 timezone_abbr
+                external_videochat_url
                 provider {
                   name
                   id
@@ -287,23 +290,33 @@ module OpenLoop
                 requested_payment {
                   id
                 }
-                attendees {
+                user {
                   id
                   first_name
                   last_name
                   full_name
                   email
-                  phone_number
-                  dob
-                  gender
-                  created_at
-                  updated_at
                 }
               }
             }
           GRAPHQL
 
           execute_query(query, { id: appointment_id })
+        end
+
+        def cancel_appointment(appointment_id)
+          mutation = <<~GRAPHQL
+            mutation updateAppointment($input: updateAppointmentInput) {
+              updateAppointment(input: $input) {
+                appointment {
+                  id
+                  pm_status
+                }
+              }
+            }
+          GRAPHQL
+
+          execute_query(mutation, { input: { id: appointment_id, pm_status: 'Cancelled' } })
         end
 
         private

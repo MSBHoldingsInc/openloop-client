@@ -10,7 +10,7 @@ A Rails gem that provides a GraphQL interface to OpenLoop Health and Healthie AP
 - Metric entries (weight, etc.)
 - Invoice creation
 - TRT form submissions
-- Appointment management (list appointments, get appointment details)
+- Appointment management (list appointments, get appointment details, cancel appointments)
 - Lab test results retrieval (via Vital API)
 - GraphiQL interface for API exploration
 - HTTParty-based REST client
@@ -167,6 +167,12 @@ appointment = healthie.get_appointment("2037619")
 appointment_data = appointment.dig("data", "appointment")
 puts "Appointment Date: #{appointment_data['date']}"
 puts "Provider: #{appointment_data.dig('provider', 'name')}"
+puts "PM Status: #{appointment_data['pm_status']}"
+
+# Cancel appointment
+result = healthie.cancel_appointment("2037619")
+puts result.dig("data", "updateAppointment", "appointment", "pm_status")
+# => "Cancelled"
 
 # OpenLoop Client
 openloop = OpenLoop::Client::API::OpenloopApiClient.new

@@ -126,7 +126,14 @@ if appointments.dig('data', 'appointments')&.any?
   appointment_data = appointment_details.dig('data', 'appointment')
   puts "Appointment Date: #{appointment_data['date']}"
   puts "Provider: #{appointment_data.dig('provider', 'name')}"
+  puts "Patient: #{appointment_data.dig('user', 'full_name')}"
   puts "Length: #{appointment_data['length']} minutes"
+  puts "PM Status: #{appointment_data['pm_status']}"
+  puts "Video URL: #{appointment_data['external_videochat_url']}" if appointment_data['external_videochat_url']
+
+  # Cancel appointment if needed
+  # cancel_result = healthie.cancel_appointment(appointment_id)
+  # puts "Cancelled: #{cancel_result.dig('data', 'updateAppointment', 'appointment', 'pm_status')}"
 end
 
 # Step 11: Get Lab Facilities (At-Home vs Walk-In)
@@ -159,6 +166,9 @@ puts "Appointment ID: #{appointment_data['id']}"
 puts "Date: #{appointment_data['date']}"
 puts "Length: #{appointment_data['length']} minutes"
 puts "Timezone: #{appointment_data['timezone_abbr']}"
+puts "PM Status: #{appointment_data['pm_status']}"
+puts "User ID: #{appointment_data['user_id']}"
+puts "Video Chat URL: #{appointment_data['external_videochat_url']}"
 
 # Access provider information
 provider = appointment_data['provider']
@@ -168,13 +178,33 @@ puts "  Email: #{provider['email']}"
 puts "  NPI: #{provider['npi']}"
 puts "  Organization: #{provider.dig('organization', 'name')}"
 
-# Access attendees
-appointment_data['attendees'].each do |attendee|
-  puts "\nAttendee:"
-  puts "  Name: #{attendee['full_name']}"
-  puts "  Email: #{attendee['email']}"
-  puts "  Phone: #{attendee['phone_number']}"
-  puts "  DOB: #{attendee['dob']}"
+# Access user/patient information
+user = appointment_data['user']
+if user
+  puts "\nPatient:"
+  puts "  Name: #{user['full_name']}"
+  puts "  Email: #{user['email']}"
+end
+```
+
+### Cancel Appointment
+
+```ruby
+# Initialize Healthie client
+healthie = OpenLoop::Client::API::HealthieClient.new
+
+# Cancel an appointment
+appointment_id = "2207949"
+result = healthie.cancel_appointment(appointment_id)
+
+# Check result
+if result.dig("data", "updateAppointment", "appointment")
+  appointment = result.dig("data", "updateAppointment", "appointment")
+  puts "Appointment #{appointment['id']} cancelled successfully"
+  puts "PM Status: #{appointment['pm_status']}"
+else
+  errors = result.dig("data", "updateAppointment", "messages")
+  puts "Error cancelling appointment: #{errors}"
 end
 ```
 
@@ -223,383 +253,6 @@ results["results"].each do |biomarker|
   puts "  Status: #{biomarker['is_above_max_range'] ? 'High' : biomarker['is_below_min_range'] ? 'Low' : 'Normal'}"
 end
 
-```
-
-## GraphQL Query Examples
-
-### 1. Get Patient with All Details
-
-```graphql
-query GetPatientDetails($patientId: ID!) {
-  patient(id: $patientId) {
-    id
-    firstName
-    lastName
-    name
-    email
-    phoneNumber
-    dob
-    gender
-    height
-    weight
-    age
-    timezone
-    dietitianId
-    additionalRecordIdentifier
-    bmiPercentile
-    nextApptDate
-    createdAt
-    updatedAt
-    location {
-      line1
-      line2
-      city
-      state
-      zip
-      country
-    }
-  }
-}
-
-# Variables
-{
-  "patientId": "123456"
-}
-```
-
-### 2. Search and Create Patient Flow
-
-```graphql
-# First, search if patient exists
-query SearchPatient($keywords: String!) {
-  searchPatients(keywords: $keywords) {
-    id
-    name
-    email
-    phoneNumber
-  }
-}
-
-# If not found, create patient
-mutation CreateNewPatient($input: CreatePatientInput!) {
-  createPatient(
-    firstName: $input.firstName
-    lastName: $input.lastName
-    email: $input.email
-    phoneNumber: $input.phoneNumber
-    dietitianId: $input.dietitianId
-    additionalRecordIdentifier: $input.additionalRecordIdentifier
-  ) {
-    patient {
-      id
-      firstName
-      lastName
-      email
-      phoneNumber
-    }
-    errors
-  }
-}
-
-# Variables
-{
-  "keywords": "john.doe@example.com",
-  "input": {
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "john.doe@example.com",
-    "phoneNumber": "555-123-4567",
-    "dietitianId": "789",
-    "additionalRecordIdentifier": "A1234567"
-  }
-}
-```
-
-### 3. Complete Patient Update
-
-```graphql
-mutation UpdatePatientComplete($patientId: ID!, $updateData: UpdatePatientInput!) {
-  updatePatient(
-    id: $patientId
-    dob: $updateData.dob
-    gender: $updateData.gender
-    height: $updateData.height
-    additionalRecordIdentifier: $updateData.additionalRecordIdentifier
-    location: $updateData.location
-  ) {
-    patient {
-      id
-      dob
-      gender
-      height
-      additionalRecordIdentifier
-      location {
-        line1
-        line2
-        city
-        state
-        zip
-        country
-      }
-    }
-    errors
-  }
-}
-
-# Variables
-{
-  "patientId": "123456",
-  "updateData": {
-    "dob": "01/01/1990",
-    "gender": "Male",
-    "height": "72",
-    "additionalRecordIdentifier": "A1234567",
-    "location": {
-      "line1": "123 Main St",
-      "line2": "Apt 4B",
-      "city": "San Francisco",
-      "state": "CA",
-      "zip": "94102",
-      "country": "US"
-    }
-  }
-}
-```
-
-### 4. TRT Initial Intake Form Submission
-
-```graphql
-mutation SubmitTRTInitialIntake($patientId: ID!, $formData: JSON!) {
-  createTrtForm(
-    patientId: $patientId
-    formReferenceId: 2471727
-    formData: $formData
-  ) {
-    response {
-      success
-      message
-      data
-    }
-    errors
-  }
-}
-
-# Variables
-{
-  "patientId": "123456",
-  "formData": {
-    "driver_license": "",
-    "driver_license_state": "",
-    "modality": "sync_visit",
-    "service_type": "macro_trt",
-    "visit_type": "Initial Visit ( visit_type_1 )",
-    "medication_preference": "Testosterone Cypionate Injection + Anastrozole (as merited) ( med_trt )",
-    "labs_will_be_ordered_through": "( order_vital_labs ) ( trt_initial_panel )",
-    "q1_do_any_of_the_following_apply_to_you": ["None of the above"],
-    "q3_do_any_of_the_following_conditions_or_situations_apply_to_you": ["Poor sleep"],
-    "q4_do_any_of_the_following_conditions_or_situations_apply_to_you": ["None of the above"],
-    "q5_do_any_of_the_following_conditions_or_situations_apply_to_you": ["Low levels of testosterone on prior labs"],
-    "q6_if_you_have_previously_been_or_currently_are_on_testosterone_replacement_theraphy": ["Cream, Gel"],
-    "q7_name_strenght_date_of_the_last_dose_of_testosterone_or_related_replacement_therapy": ["3.5ml of cream, applied daily. Last taken 01/01/1999"],
-    "q8_current_medications_updates": ["None"],
-    "9_medication_and_allergy_history": ["None of the above"]
-  }
-}
-```
-
-### 5. TRT Refill Form Submission
-
-```graphql
-mutation SubmitTRTRefill($patientId: ID!, $formData: JSON!) {
-  createTrtForm(
-    patientId: $patientId
-    formReferenceId: 2471728
-    formData: $formData
-  ) {
-    response {
-      success
-      message
-      data
-    }
-    errors
-  }
-}
-
-# Variables
-{
-  "patientId": "123456",
-  "formData": {
-    "driver_license": "",
-    "driver_license_state": "",
-    "modality": "sync_visit",
-    "service_type": "macro_trt",
-    "visit_type": "Follow Up ( visit_type_2 ) ( first_month_review )",
-    "medication_preference": "Testosterone Cypionate Injection + Anastrozole (as merited) ( med_trt )",
-    "labs_will_be_ordered_through": "( order_vital_labs ) ( trt_month_1_check_in_panel )",
-    "q1_since_last_visit_are_you_taking_medication_as_scheduled": ["Yes"],
-    "q4_any_changes_to_medications_or_allergies": ["No changes"],
-    "q5_how_have_your_symptoms_changed_since_last_visit": ["improved"],
-    "q6_5a_how_have_your_symptoms_changed_since_last_visit_details": ["I have been able to sleep and i am not as tired."],
-    "q7_since_last_visit_do_any_of_the_following_apply_to_you": ["None of the above"],
-    "q8_since_last_visit_have_you_experienced_any_of_the_following_side_effects": ["None of the above"],
-    "9_are_you_concerned_about_or_experiencing_testicular_shrinkage_potentially_as_a_result_of_using_testosterone_replacement_therapy": ["No"]
-  }
-}
-```
-
-### 6. Document Upload with Metric Entry
-
-```graphql
-# Upload document
-mutation UploadLabResults($fileString: String!, $patientId: ID!) {
-  uploadDocument(
-    fileString: $fileString
-    displayName: "Lab Result 01/15/24"
-    relUserId: $patientId
-  ) {
-    document {
-      id
-      ownerId
-      success
-    }
-    errors
-  }
-}
-
-# Record weight metric
-mutation RecordWeight($patientId: ID!, $weight: String!) {
-  createMetricEntry(
-    category: "Weight"
-    type: "MetricEntry"
-    metricStat: $weight
-    userId: $patientId
-    createdAt: "1/15/2024"
-  ) {
-    success
-    entryId
-    errors
-  }
-}
-
-# Variables
-{
-  "patientId": "123456",
-  "fileString": "data:image/jpeg;base64,/9j/4AAQ...",
-  "weight": "195"
-}
-```
-
-### 7. Create Invoice for Services
-
-```graphql
-mutation CreateServiceInvoice($patientId: ID!, $serviceDetails: InvoiceInput!) {
-  createInvoice(
-    recipientId: $patientId
-    price: $serviceDetails.price
-    status: $serviceDetails.status
-    servicesProvided: $serviceDetails.servicesProvided
-    notes: $serviceDetails.notes
-  ) {
-    success
-    invoiceId
-    errors
-  }
-}
-
-# Variables
-{
-  "patientId": "123456",
-  "serviceDetails": {
-    "price": "299",
-    "status": "Paid",
-    "servicesProvided": "Semaglutide Weekly Injection - 28 days",
-    "notes": "First month payment"
-  }
-}
-```
-
-### 8. Get Patient Appointments History
-
-```graphql
-query GetPatientHistory($patientId: ID!) {
-  patient(id: $patientId) {
-    id
-    name
-    email
-    nextApptDate
-  }
-
-  patientAppointments(userId: $patientId, filter: "all") {
-    id
-    date
-    contactType
-    length
-    location
-    providerName
-    appointmentTypeName
-  }
-}
-
-# Variables
-{
-  "patientId": "123456"
-}
-```
-
-### 9. Get Specific Appointment Details
-
-```graphql
-query GetAppointment($appointmentId: ID!) {
-  appointment(id: $appointmentId) {
-    id
-    date
-    length
-    updatedAt
-    timezoneAbbr
-    provider {
-      name
-      id
-      email
-      npi
-      organization {
-        name
-        id
-      }
-    }
-    appointmentType {
-      id
-    }
-    requestedPayment {
-      id
-    }
-    attendees {
-      id
-      firstName
-      lastName
-      fullName
-      email
-      phoneNumber
-      dob
-      gender
-      createdAt
-      updatedAt
-    }
-  }
-}
-
-# Variables
-{
-  "appointmentId": "2037619"
-}
-
-# Example Usage in Ruby
-appointment = OpenLoop::Client::GraphQL::Schema.execute(
-  query_string,
-  variables: { appointmentId: "2037619" }
-)
-appointment_data = appointment.dig("data", "appointment")
-puts "Appointment Date: #{appointment_data['date']}"
-puts "Provider: #{appointment_data.dig('provider', 'name')}"
 ```
 
 ## Error Handling Examples
