@@ -208,6 +208,82 @@ else
 end
 ```
 
+## Booking Widget URL
+
+### Generate Booking Widget URL
+
+```ruby
+# Initialize OpenLoop API client
+openloop = OpenLoop::Client::API::OpenloopApiClient.new
+
+# Generate booking URL for TRT initial visit (default)
+url = openloop.booking_widget_url
+puts url
+# => "https://booking-staging.openloophealth.com?appointmentTypeId=...&providerId=..."
+
+# Generate booking URL with patient information
+url = openloop.booking_widget_url(
+  therapy_type: 'trt',
+  visit_type: 'initial',
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john@example.com',
+  phoneNumber: '5551234567',
+  state: 'CA',
+  zip: '90001',
+  redirectUrl: 'https://start.rugiet.com'
+)
+puts url
+# => "https://express.care-staging.openloophealth.com/book-appointment?appointmentTypeId=349681&providerId=3483153&firstName=John&lastName=Doe&email=john@example.com&phoneNumber=5551234567&state=CA&zip=90001&redirectUrl=https://start.rugiet.com"
+
+# Generate URL for TRT refill visit
+url = openloop.booking_widget_url(
+  therapy_type: 'trt',
+  visit_type: 'refill',
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john@example.com'
+)
+
+# Generate URL for Enclomiphene initial visit
+url = openloop.booking_widget_url(
+  therapy_type: 'enclomiphene',
+  visit_type: 'initial',
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john@example.com'
+)
+
+# Generate URL for Enclomiphene refill visit
+url = openloop.booking_widget_url(
+  therapy_type: 'enclomiphene',
+  visit_type: 'refill',
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john@example.com'
+)
+```
+
+### Available Options
+
+**therapy_type**: (String, default: 'trt')
+- `'trt'` - Testosterone Replacement Therapy
+- `'enclomiphene'` - Enclomiphene therapy
+
+**visit_type**: (String, default: 'initial')
+- `'initial'` - Initial visit
+- `'refill'` - Refill/follow-up visit
+
+**Additional Parameters** (all optional, commonly used):
+- `firstName` - Patient first name
+- `lastName` - Patient last name
+- `email` - Patient email address
+- `phoneNumber` - Patient phone number (e.g., '5551234567')
+- `state` - Patient state (e.g., 'CA')
+- `zip` - Patient zip code (e.g., '90001')
+- `redirectUrl` - URL to redirect to after booking (e.g., 'https://start.rugiet.com')
+- `headless` - (Boolean, default: false) Determines if the widget should run in headless mode
+
 ## Lab Facilities API
 
 ### Get Lab Facilities by Zip Code
