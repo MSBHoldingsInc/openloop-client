@@ -1,6 +1,28 @@
 # OpenLoop::Client
 
+[![Documentation](https://img.shields.io/badge/docs-YARD-blue.svg)](https://rubydoc.info/gems/openloop-client)
+
 A Rails gem that provides a GraphQL interface to OpenLoop Health and Healthie APIs for patient management, forms, and appointments. Built with scalability in mind, making it easy to add new resources and endpoints.
+
+## Documentation
+
+Full API documentation is available via YARD:
+
+```bash
+# Generate documentation locally
+bundle exec yard doc
+
+# Start a local documentation server
+bundle exec yard server --reload
+```
+
+Then visit http://localhost:8808 to browse the documentation.
+
+The documentation covers:
+- Configuration options and environment setup
+- API client classes (HealthieClient, OpenloopApiClient, JunctionApiClient)
+- GraphQL schema, queries, and mutations
+- Error handling and best practices
 
 ## Features
 

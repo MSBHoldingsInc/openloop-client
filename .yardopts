@@ -1,0 +1,13 @@
+--markup markdown
+--output-dir doc
+--readme README.md
+--title "OpenLoop::Client API Documentation"
+--protected
+--no-private
+--exclude spec/
+--exclude bin/
+--exclude sig/
+lib/**/*.rb
+-
+EXAMPLES.md
+LICENSE.txt
