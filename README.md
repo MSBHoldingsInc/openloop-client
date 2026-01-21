@@ -54,8 +54,8 @@ Create a new file `config/initializers/openloop_client.rb` in your Rails app:
 ```ruby
 OpenLoop::Client.configure do |config|
   # Healthie API Configuration
-  config.healthie_api_key = ENV['HEALTHIE_API_KEY']
-  config.healthie_authorization_shard = ENV['HEALTHIE_AUTHORIZATION_SHARD'] # Optional
+  config.healthie_api_key = ENV['HEALTHIE_API_KEY'] # Optional
+  config.healthie_authorization_shard = ENV['HEALTHIE_AUTHORIZATION_SHARD']
 
   # OpenLoop API Configuration
   config.openloop_api_key = ENV['OPENLOOP_API_KEY']
@@ -79,14 +79,12 @@ Create or update your `.env` file (if using dotenv gem) or `config/credentials.y
 HEALTHIE_API_KEY=your_healthie_api_key_here
 OPENLOOP_API_KEY=your_openloop_api_key_here
 HEALTHIE_AUTHORIZATION_SHARD=your_shard_id_here
-OPENLOOP_BOOKING_WIDGET_URL=https://booking-staging.openloophealth.com
 VITAL_API_KEY=your_vital_api_key_here
 
 # For Production Environment (comment out staging and uncomment these)
 # HEALTHIE_API_KEY=your_production_healthie_api_key
 # OPENLOOP_API_KEY=your_production_openloop_api_key
 # HEALTHIE_AUTHORIZATION_SHARD=your_production_shard_id
-# OPENLOOP_BOOKING_WIDGET_URL=https://booking.openloophealth.com
 # VITAL_API_KEY=your_production_vital_api_key
 ```
 
@@ -173,6 +171,14 @@ puts "PM Status: #{appointment_data['pm_status']}"
 result = healthie.cancel_appointment("2037619")
 puts result.dig("data", "updateAppointment", "appointment", "pm_status")
 # => "Cancelled"
+
+# Get form answer group
+form_answer_group = healthie.get_form_answer_group("1240332")
+form_data = form_answer_group.dig("data", "formAnswerGroup")
+puts "Form ID: #{form_data['id']}"
+puts "User ID: #{form_data['user_id']}"
+puts "Finished: #{form_data['finished']}"
+puts "Form Answers: #{form_data['form_answers'].count}"
 
 # OpenLoop Client
 openloop = OpenLoop::Client::API::OpenloopApiClient.new

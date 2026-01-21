@@ -319,6 +319,46 @@ module OpenLoop
           execute_query(mutation, { input: { id: appointment_id, pm_status: 'Cancelled' } })
         end
 
+        def get_form_answer_group(id)
+          query = <<~GRAPHQL
+            query FormAnswerGroup($id: ID!) {
+              formAnswerGroup(id: $id) {
+                id
+                user_id
+                finished
+                record_created_at
+                updated_at
+                metadata
+                custom_module_form {
+                  id
+                }
+                form_answers {
+                  label
+                  answer
+                }
+                appointment {
+                  id
+                  provider_name
+                }
+                user {
+                  id
+                  email
+                }
+                current_summary {
+                  id
+                  summary
+                }
+                individual_client_notes {
+                  id
+                  content
+                }
+              }
+            }
+          GRAPHQL
+
+          execute_query(query, { id: id })
+        end
+
         private
 
         def headers

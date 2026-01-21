@@ -284,6 +284,96 @@ url = openloop.booking_widget_url(
 - `redirectUrl` - URL to redirect to after booking (e.g., 'https://start.rugiet.com')
 - `headless` - (Boolean, default: false) Determines if the widget should run in headless mode
 
+## Form Answer Group API
+
+### Get Form Answer Group
+
+```ruby
+# Initialize Healthie client
+healthie = OpenLoop::Client::API::HealthieClient.new
+
+# Get form answer group by ID
+form_answer_group_id = "1240332"
+response = healthie.get_form_answer_group(form_answer_group_id)
+
+# Access form answer group data
+form_data = response.dig("data", "formAnswerGroup")
+puts "Form ID: #{form_data['id']}"
+puts "User ID: #{form_data['user_id']}"
+puts "Finished: #{form_data['finished']}"
+puts "Created At: #{form_data['record_created_at']}"
+puts "Updated At: #{form_data['updated_at']}"
+
+# Access custom module form
+custom_form = form_data['custom_module_form']
+puts "\nCustom Module Form ID: #{custom_form['id']}" if custom_form
+
+# Access form answers
+puts "\nForm Answers (#{form_data['form_answers'].count} total):"
+form_data['form_answers'].each do |answer|
+  next if answer['answer'].nil? || answer['answer'].empty?
+  puts "  #{answer['label']}: #{answer['answer']}"
+end
+
+# Access appointment information (if available)
+if form_data['appointment']
+  appointment = form_data['appointment']
+  puts "\nAppointment:"
+  puts "  ID: #{appointment['id']}"
+  puts "  Provider: #{appointment['provider_name']}"
+end
+
+# Access user information
+user = form_data['user']
+if user
+  puts "\nUser:"
+  puts "  ID: #{user['id']}"
+  puts "  Email: #{user['email']}"
+end
+
+# Access current summary (if available)
+if form_data['current_summary']
+  summary = form_data['current_summary']
+  puts "\nCurrent Summary:"
+  puts "  ID: #{summary['id']}"
+  puts "  Summary: #{summary['summary']}"
+end
+
+```
+
+### Example Response
+
+```ruby
+{
+  "data" => {
+    "formAnswerGroup" => {
+      "id" => "1240332",
+      "user_id" => "3733250",
+      "finished" => true,
+      "record_created_at" => "2026-01-13 14:56:16 -0600",
+      "updated_at" => "2026-01-13 15:00:24 -0600",
+      "metadata" => nil,
+      "custom_module_form" => {"id" => "2190742"},
+      "form_answers" => [
+        {"label" => "Hormone Type", "answer" => "TRT"},
+        {"label" => "Note Type", "answer" => "1. Visit Charting + Prescription Note"},
+        {"label" => "Visit Type", "answer" => "Initial Visit ( visit_type_1 )"},
+        {"label" => "Name of Patient", "answer" => "John Doe"},
+        {"label" => "Date of Birth", "answer" => "1988-01-01"},
+        # ... more form answers
+      ],
+      "appointment" => nil,
+      "user" => {
+        "id" => "3733250",
+        "email" => "john.doe@example.com"
+      },
+      "current_summary" => nil,
+      "individual_client_notes" => []
+    }
+  }
+}
+```
+
 ## Lab Facilities API
 
 ### Get Lab Facilities by Zip Code
