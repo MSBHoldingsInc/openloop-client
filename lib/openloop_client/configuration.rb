@@ -60,21 +60,15 @@ module OpenLoop
       private
 
       def default_healthie_url
-        environment == :production ?
-          "https://api.gethealthie.com/graphql" :
-          "https://staging-api.gethealthie.com/graphql"
+        "https://api.gethealthie.com/graphql"
       end
 
       def default_questionnaire_url
-        environment == :production ?
-          "https://api.questionnaire.solutions.openloophealth.com" :
-          "https://api.questionnaire.solutions-staging.openloophealth.com"
+        "https://api.questionnaire.solutions.openloophealth.com"
       end
 
       def default_booking_widget_base_url
-        environment == :production ?
-          "https://express.patientcare.openloophealth.com/book-appointment" :
-          "https://express.care-staging.openloophealth.com/book-appointment"
+        "https://express.patientcare.openloophealth.com/book-appointment"
       end
 
       def default_vital_api_url
@@ -84,15 +78,18 @@ module OpenLoop
       end
 
       def default_org_id
-        environment == :production ? "93721" : "167021"
+        # To be updated once production org IDs are available
+        environment == :production ? "93721" : "93721"
       end
 
       def default_provider_id
-        environment == :production ? "9584181" : "3483153"
+        # To be updated once production provider IDs are available
+        environment == :production ? "9584181" : "9584181"
       end
 
       def default_form_ids
         if environment == :production
+          # To be updated once production form IDs are available
           {
             trt_initial: "2471727",
             trt_refill: "2471728",
@@ -101,15 +98,16 @@ module OpenLoop
           }
         else
           {
-            trt_initial: "2156890",
-            trt_refill: "2156891",
-            labs_upload_completed: "2190741",
-            trt_encounter_note: "2190742"
+            trt_initial: "2471727",
+            trt_refill: "2471728",
+            labs_upload_completed: "2638349",
+            trt_encounter_note: "2841159"
           }
         end
       end
 
       def default_appointment_type_ids
+        # To be updated once production appointment type IDs are available
         if environment == :production
           {
             trt_initial: "472535",
@@ -119,10 +117,10 @@ module OpenLoop
           }
         else
           {
-            trt_initial: "349681",
-            trt_refill: "349682",
-            enclomiphene_initial: "349683",
-            enclomiphene_refill: "349684"
+            trt_initial: "472535",
+            trt_refill: "472536",
+            enclomiphene_initial: "472537",
+            enclomiphene_refill: "472538"
           }
         end
       end
