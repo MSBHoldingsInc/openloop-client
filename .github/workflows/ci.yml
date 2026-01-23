@@ -1,0 +1,54 @@
+name: CI - Run Tests
+
+# =============================================================================
+# CI WORKFLOW - RUN RSPEC TESTS ON PULL REQUESTS
+# =============================================================================
+# This workflow runs RSpec tests whenever a pull request is created or updated
+# =============================================================================
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+    types:
+      - opened
+      - synchronize
+      - reopened
+  workflow_dispatch: # Allow manual triggering
+
+# =============================================================================
+# CONCURRENCY CONTROL
+# =============================================================================
+# Prevents multiple workflow runs for the same PR to avoid conflicts
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Run RSpec Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true # Runs 'bundle install' and caches installed gems automatically
+
+      - name: Run RSpec tests
+        run: bundle exec rspec
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rspec-results
+          path: |
+            .rspec_status
+            coverage/
+          retention-days: 7
