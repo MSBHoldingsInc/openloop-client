@@ -204,7 +204,7 @@ url = openloop.booking_widget_url(
   redirectUrl: 'https://start.rugiet.com'
 )
 puts url
-# => "https://express.care-staging.openloophealth.com/book-appointment?appointmentTypeId=349681&providerId=3483153&firstName=John&lastName=Doe&email=john@example.com&phoneNumber=5551234567&state=CA&zip=90001&redirectUrl=https://start.rugiet.com"
+# => "https://express.patientcare.openloophealth.com/book-appointment?appointmentTypeId=349681&providerId=3483153&firstName=John&lastName=Doe&email=john@example.com&phoneNumber=5551234567&state=CA&zip=90001&redirectUrl=https://start.rugiet.com"
 
 # Junction Client (for Vital lab results)
 junction = OpenLoop::Client::API::JunctionApiClient.new
