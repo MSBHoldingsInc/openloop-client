@@ -354,6 +354,11 @@ module OpenLoop
                   label
                   answer
                 }
+                locked_at
+                locked_by {
+                  full_name
+                  profession
+                }
                 appointment {
                   id
                   provider_name

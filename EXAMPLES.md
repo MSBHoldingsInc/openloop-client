@@ -412,6 +412,11 @@ end
         {"label" => "Date of Birth", "answer" => "1988-01-01"},
         # ... more form answers
       ],
+      "locked_at" => "2026-01-14 13:54:19 -0600",
+      "locked_by" => {
+        "full_name" => "John Doe",
+        "profession" => nil
+      },
       "appointment" => nil,
       "user" => {
         "id" => "3733250",
