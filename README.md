@@ -166,6 +166,7 @@ appointment_data = appointment.dig("data", "appointment")
 puts "Appointment Date: #{appointment_data['date']}"
 puts "Provider: #{appointment_data.dig('provider', 'name')}"
 puts "PM Status: #{appointment_data['pm_status']}"
+puts "Video URL: #{appointment_data['external_videochat_url']}" if appointment_data['external_videochat_url']
 
 # Cancel appointment
 result = healthie.cancel_appointment("2037619")
