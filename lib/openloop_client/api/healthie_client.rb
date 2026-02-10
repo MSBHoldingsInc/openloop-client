@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'uri'
-
 module OpenLoop
   module Client
     module API
@@ -318,8 +316,7 @@ module OpenLoop
             }
           GRAPHQL
 
-          response = execute_query(query, { id: appointment_id })
-          transform_appointment_response(response)
+          execute_query(query, { id: appointment_id })
         end
 
         def cancel_appointment(appointment_id)
@@ -383,21 +380,6 @@ module OpenLoop
         end
 
         private
-
-        def transform_appointment_response(response)
-          appointment = response.dig("data", "appointment")
-          return response unless appointment
-
-          external_videochat_url = appointment["external_videochat_url"]
-          user = appointment["user"]
-
-          if external_videochat_url && user && user["full_name"] && user["id"]
-            encoded_username = URI.encode_www_form_component(user['full_name'])
-            appointment["appointment_url"] = "#{external_videochat_url}?username=#{encoded_username}&autocheckin=false&pid=#{user['id']}"
-          end
-
-          response
-        end
 
         def headers
           headers = {
