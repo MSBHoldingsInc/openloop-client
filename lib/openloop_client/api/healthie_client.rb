@@ -379,6 +379,24 @@ module OpenLoop
           execute_query(query, { id: id })
         end
 
+        def get_user_locations(user_id)
+          query = <<~GRAPHQL
+            query UserLocations($user_id: String!) {
+              locations(user_id: $user_id) {
+                id
+                city
+                line1
+                line2
+                state
+                zip
+                country
+              }
+            }
+          GRAPHQL
+
+          execute_query(query, { user_id: user_id })
+        end
+
         private
 
         def headers

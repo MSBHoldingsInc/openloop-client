@@ -42,24 +42,30 @@ patient_data = {
 patient_response = healthie.create_patient(patient_data)
 patient_id = patient_response.dig("data", "createClient", "user", "id")
 
-# Step 3: Update Patient with additional information
+# Step 3: Get User Locations (optional - to update existing location)
+# Fetch existing location ID if patient already has a location
+locations_response = healthie.get_user_locations(patient_id)
+location_id = locations_response.dig('data', 'locations', 0, 'id')
+
+# Step 4: Update Patient with additional information
 update_data = {
   id: patient_id,
   dob: "01/01/1990",
   gender: "Male",
   height: "72",
   location: {
+    id: location_id, # Include location ID when updating existing location
     line1: "123 Main St",
     city: "San Francisco",
     state: "CA",
     zip: "94102",
     country: "US"
-  }
+  }.compact
 }
 
 healthie.update_patient(update_data)
 
-# Step 4: Create TRT Initial Intake Form
+# Step 5: Create TRT Initial Intake Form
 form_data = {
   patient_id: patient_id,
   formReferenceId: 2471727, # Production form ID
@@ -80,17 +86,18 @@ form_data = {
 
 form_response = openloop.create_trt_form(form_data)
 
-# Step 5: Upload Lab Results Document
+# Step 6: Upload Lab Results Document
 file_base64 = "data:image/jpeg;base64,/9j/4AAQ..." # Your base64 encoded file
-document_data = {
+document_input = {
   file_string: file_base64,
   display_name: "Lab Result 01/01/24",
+  description: "Patient lab results",
   rel_user_id: patient_id
 }
 
-healthie.upload_document(document_data)
+healthie.upload_document(document_input)
 
-# Step 6: Create Metric Entry (Weight)
+# Step 7: Create Metric Entry (Weight)
 metric_data = {
   category: "Weight",
   type: "MetricEntry",
@@ -101,7 +108,7 @@ metric_data = {
 
 healthie.create_metric_entry(metric_data)
 
-# Step 7: Create Invoice
+# Step 8: Create Invoice
 invoice_data = {
   recipient_id: patient_id,
   price: "299",
@@ -111,15 +118,15 @@ invoice_data = {
 
 healthie.create_invoice(invoice_data)
 
-# Step 8: Get Patient Details
+# Step 9: Get Patient Details
 patient = healthie.get_patient(patient_id)
 puts "Patient: #{patient.dig('data', 'user', 'name')}"
 
-# Step 9: Get Patient Appointments
+# Step 10: Get Patient Appointments
 appointments = healthie.get_patient_appointments(patient_id, "all")
 puts "Appointments: #{appointments.dig('data', 'appointments').count}"
 
-# Step 10: Get Specific Appointment Details
+# Step 11: Get Specific Appointment Details
 if appointments.dig('data', 'appointments')&.any?
   appointment_id = appointments.dig('data', 'appointments', 0, 'id')
   appointment_details = healthie.get_appointment(appointment_id)
@@ -136,11 +143,11 @@ if appointments.dig('data', 'appointments')&.any?
   # puts "Cancelled: #{cancel_result.dig('data', 'updateAppointment', 'appointment', 'pm_status')}"
 end
 
-# Step 11: Get Lab Facilities (At-Home vs Walk-In)
+# Step 12: Get Lab Facilities (At-Home vs Walk-In)
 lab_facilities = openloop.get_lab_facilities(zip_code: "50309", radius: 50)
 puts "Lab Facilities: #{lab_facilities}"
 
-# Step 12: Get Lab Test Results (requires order_id from Vital)
+# Step 13: Get Lab Test Results (requires order_id from Vital)
 junction = OpenLoop::Client::API::JunctionApiClient.new
 order_id = "550e8400-e29b-41d4-a716-446655440000"
 lab_results = junction.get_lab_results(order_id: order_id)
@@ -422,6 +429,37 @@ end
     }
   }
 }
+```
+
+## User Locations API
+
+### Get User Locations
+
+Retrieve all location addresses associated with a patient in Healthie. This is useful when updating a patient's address, as you need to provide the existing location ID.
+
+```ruby
+# Initialize Healthie client
+healthie = OpenLoop::Client::API::HealthieClient.new
+
+# Get all locations for a user
+patient_id = "123456"
+response = healthie.get_user_locations(patient_id)
+
+# Access location data
+locations = response.dig("data", "locations")
+puts "User has #{locations.count} location(s)"
+
+# Get first location details
+if locations&.any?
+  location = locations.first
+  puts "\nLocation ID: #{location['id']}"
+  puts "Address Line 1: #{location['line1']}"
+  puts "Address Line 2: #{location['line2']}" if location['line2']
+  puts "City: #{location['city']}"
+  puts "State: #{location['state']}"
+  puts "Zip: #{location['zip']}"
+  puts "Country: #{location['country']}"
+end
 ```
 
 ## Lab Facilities API
