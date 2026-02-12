@@ -6,11 +6,13 @@ A Rails gem that provides a GraphQL interface to OpenLoop Health and Healthie AP
 
 - GraphQL API wrapper for OpenLoop Health and Healthie APIs
 - Patient management (CRUD operations)
-- Document uploads
+- User location management (retrieve and update addresses)
+- Document uploads (ID verification, lab results, consent forms, etc.)
 - Metric entries (weight, etc.)
 - Invoice creation
 - TRT form submissions
 - Appointment management (list appointments, get appointment details, cancel appointments)
+- Form answer groups (retrieve patient intake forms and responses)
 - Lab test results retrieval (via Vital API)
 - GraphiQL interface for API exploration
 - HTTParty-based REST client
@@ -180,6 +182,21 @@ puts "Form ID: #{form_data['id']}"
 puts "User ID: #{form_data['user_id']}"
 puts "Finished: #{form_data['finished']}"
 puts "Form Answers: #{form_data['form_answers'].count}"
+
+# Get user locations
+locations = healthie.get_user_locations(patient_id)
+location_id = locations.dig("data", "locations", 0, "id")
+puts "Location ID: #{location_id}"
+
+# Upload document
+file_data = File.read('path/to/document.pdf')
+base64_data = Base64.strict_encode64(file_data)
+document_response = healthie.upload_document({
+  rel_user_id: patient_id,
+  display_name: "Lab Results",
+  description: "Patient lab results",
+  file_string: "data:application/pdf;base64,#{base64_data}"
+})
 
 # OpenLoop Client
 openloop = OpenLoop::Client::API::OpenloopApiClient.new
