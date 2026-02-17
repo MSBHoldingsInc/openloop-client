@@ -15,6 +15,18 @@ module OpenLoop
           response = self.class.get(url, headers: headers)
           handle_response(response)
         end
+
+        def get_order_psc_info(order_id:, radius: 50)
+          url = "#{@config.vital_api_url}/v3/order/#{order_id}/psc/info"
+          headers = {
+            "x-vital-api-key" => @config.vital_api_key,
+            "accept" => "application/json"
+          }
+          query = { radius: radius }
+
+          response = self.class.get(url, headers: headers, query: query)
+          handle_response(response)
+        end
       end
     end
   end
