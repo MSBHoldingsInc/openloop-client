@@ -17,7 +17,7 @@ module OpenLoop
         end
 
         def get_order_psc_info(order_id:, radius: 50)
-          url = "#{@config.vital_api_url}/v3/order/#{order_id}/psc/info"
+          url = "#{@config.vital_api_url}/order/#{order_id}/psc/info"
           headers = {
             "x-vital-api-key" => @config.vital_api_key,
             "accept" => "application/json"
