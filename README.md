@@ -14,6 +14,7 @@ A Rails gem that provides a GraphQL interface to OpenLoop Health and Healthie AP
 - Appointment management (list appointments, get appointment details, cancel appointments)
 - Form answer groups (retrieve patient intake forms and responses)
 - Lab test results retrieval (via Vital API)
+- Patient Service Center (PSC) location finder for lab orders
 - GraphiQL interface for API exploration
 - HTTParty-based REST client
 - Configurable for staging and production environments
@@ -232,6 +233,55 @@ order_id = "550e8400-e29b-41d4-a716-446655440000"
 results = junction.get_lab_results(order_id: order_id)
 puts results["metadata"]
 puts results["results"]
+
+# Get Patient Service Center (PSC) locations for lab order
+# Default radius is 50 miles
+psc_info = junction.get_order_psc_info(order_id: order_id)
+
+# Get PSC locations with custom radius (in miles)
+psc_info = junction.get_order_psc_info(order_id: order_id, radius: 10)
+
+# Example response structure:
+# {
+#   "lab_id" => 6,
+#   "slug" => "labcorp",
+#   "patient_service_centers" => [
+#     {
+#       "metadata" => {
+#         "name" => "LABCORP",
+#         "state" => "IL",
+#         "city" => "Elgin",
+#         "zip_code" => "60120",
+#         "first_line" => "450 Dundee Ave",
+#         "second_line" => "Ste 106",
+#         "phone_number" => "847-695-2473",
+#         "fax_number" => "847-695-6571",
+#         "hours" => {
+#           "Fri" => "8:00AM-5:00PM",
+#           "Mon" => "8:00AM-7:30PM",
+#           "Sat" => "8:00AM-5:00PM",
+#           "Sun" => "Closed",
+#           "Thu" => "8:00AM-7:30PM",
+#           "Tue" => "8:00AM-7:30PM",
+#           "Wed" => "8:00AM-7:30PM"
+#         }
+#       },
+#       "distance" => 3,
+#       "site_code" => "22564",
+#       "supported_bill_types" => ["client_bill", "commercial_insurance", "patient_bill"],
+#       "location" => { "lng" => -88.2780885, "lat" => 42.04532469999999 },
+#       "capabilities" => []
+#     }
+#   ]
+# }
+
+# Access PSC location details
+psc_info['patient_service_centers'].each do |psc|
+  puts "#{psc.dig('metadata', 'name')} - #{psc['distance']} miles"
+  puts "Address: #{psc.dig('metadata', 'first_line')}, #{psc.dig('metadata', 'city')}, #{psc.dig('metadata', 'state')}"
+  puts "Phone: #{psc.dig('metadata', 'phone_number')}"
+  puts "Hours: #{psc.dig('metadata', 'hours')}"
+end
 ```
 
 ## Architecture

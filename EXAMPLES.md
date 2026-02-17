@@ -153,6 +153,21 @@ order_id = "550e8400-e29b-41d4-a716-446655440000"
 lab_results = junction.get_lab_results(order_id: order_id)
 puts "Lab Results Metadata: #{lab_results['metadata']}"
 puts "Biomarker Results: #{lab_results['results']}"
+
+# Step 14: Get Patient Service Center (PSC) Information
+# Get PSC locations for lab order with default 50 mile radius
+psc_info = junction.get_order_psc_info(order_id: order_id)
+puts "Lab Provider: #{psc_info['slug']}"
+puts "Available PSC Locations: #{psc_info['patient_service_centers'].count}"
+
+# Get PSC locations with custom radius
+psc_info = junction.get_order_psc_info(order_id: order_id, radius: 10)
+psc_info['patient_service_centers'].each do |psc|
+  puts "Location: #{psc.dig('metadata', 'name')}"
+  puts "Address: #{psc.dig('metadata', 'first_line')}, #{psc.dig('metadata', 'city')}, #{psc.dig('metadata', 'state')}"
+  puts "Distance: #{psc['distance']} miles"
+  puts "Hours: #{psc.dig('metadata', 'hours')}"
+end
 ```
 
 ## Appointment Details API
