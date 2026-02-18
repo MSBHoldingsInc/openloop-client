@@ -94,14 +94,16 @@ module OpenLoop
             trt_initial: "2471727",
             trt_refill: "2471728",
             labs_upload_completed: "2638349",
-            trt_encounter_note: "2841159"
+            trt_encounter_note: "2841159",
+            medication_instructions: "1915471"
           }
         else
           {
             trt_initial: "2471727",
             trt_refill: "2471728",
             labs_upload_completed: "2638349",
-            trt_encounter_note: "2841159"
+            trt_encounter_note: "2841159",
+            medication_instructions: "1915471"
           }
         end
       end
