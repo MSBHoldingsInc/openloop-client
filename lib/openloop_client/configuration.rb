@@ -78,23 +78,20 @@ module OpenLoop
       end
 
       def default_org_id
-        # To be updated once production org IDs are available
-        environment == :production ? "93721" : "93721"
+        environment == :production ? "110705" : "93721"
       end
 
       def default_provider_id
-        # To be updated once production provider IDs are available
-        environment == :production ? "9584181" : "9584181"
+        environment == :production ? "13550111" : "9584181"
       end
 
       def default_form_ids
         if environment == :production
-          # To be updated once production form IDs are available
           {
             trt_initial: "2471727",
             trt_refill: "2471728",
-            labs_upload_completed: "2638349",
-            trt_encounter_note: "2841159",
+            labs_upload_completed: "2977063",
+            trt_encounter_note: "2977064",
             medication_instructions: "1915471"
           }
         else
@@ -109,13 +106,12 @@ module OpenLoop
       end
 
       def default_appointment_type_ids
-        # To be updated once production appointment type IDs are available
         if environment == :production
           {
-            trt_initial: "472535",
-            trt_refill: "472536",
-            enclomiphene_initial: "472537",
-            enclomiphene_refill: "472538"
+            trt_initial: "513710",
+            trt_refill: "513708",
+            enclomiphene_initial: "513709",
+            enclomiphene_refill: "513711"
           }
         else
           {
