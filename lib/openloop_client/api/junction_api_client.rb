@@ -66,7 +66,7 @@ module OpenLoop
         # @param radius [Integer]
         # @return [Hash]
         def get_psc_info(zip_code:, lab_id:, radius: 50)
-          url = "#{@config.vital_api_url}/v3/order/psc/info"
+          url = "#{@config.vital_api_url}/order/psc/info"
           headers = {
             "x-vital-api-key" => @config.vital_api_key,
             "accept" => "application/json"
