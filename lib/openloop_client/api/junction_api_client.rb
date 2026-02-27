@@ -32,7 +32,7 @@ module OpenLoop
         # @param zip_code [String, Integer]
         # @param radius [Integer]
         # @return [Hash]
-        def get_area_info(zip_code:, radius: 25)
+        def get_area_info(zip_code:, radius: 50)
           url = "#{@config.vital_api_url}/order/area/info"
           headers = {
             "x-vital-api-key" => @config.vital_api_key,
