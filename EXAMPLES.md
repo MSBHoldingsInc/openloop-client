@@ -568,6 +568,31 @@ nearby_labs = junction.get_area_info(
 }
 ```
 
+## Lab Requisition API
+
+### Get Lab Requisition PDF from Junction
+
+```ruby
+# Initialize Junction API client
+junction = OpenLoop::Client::API::JunctionApiClient.new
+
+# Get lab requisition PDF string for a specific order
+# Note: Requires vital_api_key to be configured
+order_id = "550e8400-e29b-41d4-a716-446655440000" # UUID format
+pdf_string = junction.get_lab_requisition(order_id: order_id)
+#=> "%PDF-1.4\n%\xE2\xE3\xCF\xD3\n..." (binary PDF data)
+
+# Save to file:
+File.binwrite("tmp/lab_requisition.pdf", pdf_string)
+
+# Attach to record:
+some_record.lab_requisition.attach(
+  io: StringIO.new(pdf_string),
+  filename: "lab_requisition.pdf",
+  content_type: "application/pdf"
+)
+```
+
 ## Error Handling Examples
 
 ```ruby

@@ -43,6 +43,22 @@ module OpenLoop
           response = self.class.get(url, headers: headers, query: query)
           handle_response(response)
         end
+
+        # https://docs.junction.com/api-reference/lab-testing/requisition-pdf
+        # @raise [OpenLoop::Client::API::BaseClient::APIError] if the response is not successful
+        # @param order_id [String] the ID of the lab order
+        # @return [String] the PDF content of the lab requisition
+        def get_lab_requisition(order_id:)
+          url = "#{@config.vital_api_url}/order/#{order_id}/requisition/pdf"
+          headers = {
+            "x-vital-api-key" => @config.vital_api_key,
+            "accept" => "application/pdf"
+          }
+          response = self.class.get(url, headers: headers)
+          return response.body if response.success?
+
+          handle_response(response)
+        end
       end
     end
   end
