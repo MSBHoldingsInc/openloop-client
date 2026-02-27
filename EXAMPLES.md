@@ -408,7 +408,7 @@ end
 
 ```
 
-### Example Response
+#### Example Response
 
 ```ruby
 {
@@ -536,12 +536,15 @@ junction = OpenLoop::Client::API::JunctionApiClient.new
 zip_code = "10956" # New City, New York
 radius = 10
 
-nearby_labs = junction.get_area_info(
+junction.get_area_info(
   zip_code: zip_code,
   radius: radius
 )
+```
 
-# Sample response
+#### Example Response
+
+```ruby
 {
   'zip_code' => '10956',
   'phlebotomy' => {
@@ -591,6 +594,90 @@ some_record.lab_requisition.attach(
   filename: "lab_requisition.pdf",
   content_type: "application/pdf"
 )
+```
+
+## Patient Service Centers API
+
+### Get Nearby Patient Service Centers from Junction
+
+```ruby
+# Initialize Junction API client
+junction = OpenLoop::Client::API::JunctionApiClient.new
+
+# Get information about nearby patient service centers
+# Note: Requires vital_api_key to be configured
+zip_code = "27350" # Sophia, NC
+lab_id = 7 # Quest Diagnostics
+radius = 20
+
+junction.get_psc_info(
+  zip_code: zip_code,
+  lab_id: lab_id,
+  radius: radius
+)
+```
+
+#### Example Response
+
+```ruby
+{
+  "lab_id" => 7,
+  "slug" => "quest",
+  "patient_service_centers" => [
+    {
+      "metadata" => {
+        "name" => "Quest Diagnostics",
+        "state" => "NC",
+        "city" => "High Point",
+        "zip_code" => "27262",
+        "first_line" => "1011 N Lindsay St",
+        "second_line" => "",
+        "phone_number" => "743-201-0627",
+        "fax_number" => "336-886-0076",
+        "hours" => {
+          "Fri" => "7:30AM - 12:30PM;1:30PM - 4:30PM",
+          "Mon" => "7:30AM - 12:30PM;1:30PM - 4:30PM",
+          "Sat" => nil,
+          "Sun" => nil,
+          "Thu" => "7:30AM - 12:30PM;1:30PM - 4:30PM",
+          "Tue" => "7:30AM - 12:30PM;1:30PM - 4:30PM",
+          "Wed" => "7:30AM - 12:30PM;1:30PM - 4:30PM"
+        }
+      },
+      "distance" => 12,
+      "site_code" => "A8W",
+      "supported_bill_types" => ["client_bill"],
+      "location" => { "lng" => -80.0156322, "lat" => 35.9660014 },
+      "capabilities" => ["appointment_scheduling_via_junction"]
+    },
+    {
+      "metadata" => {
+        "name" => "Quest Diagnostics",
+        "state" => "NC",
+        "city" => "Greensboro",
+        "zip_code" => "27401",
+        "first_line" => "1002 N Church St",
+        "second_line" => "Ste 405",
+        "phone_number" => "336-333-2225",
+        "fax_number" => "336-333-0035",
+        "hours" => {
+          "Fri" => "7:00AM - 5:00PM",
+          "Mon" => "7:00AM - 5:00PM",
+          "Sat" => nil,
+          "Sun" => nil,
+          "Thu" => "7:00AM - 5:00PM",
+          "Tue" => "7:00AM - 5:00PM",
+          "Wed" => "7:00AM - 5:00PM"
+        }
+      },
+      "distance" => 19,
+      "site_code" => "WJ3",
+      "supported_bill_types" => ["client_bill"],
+      "location" => { "lng" => -79.7839012, "lat" => 36.0886497 },
+      "capabilities" => ["appointment_scheduling_via_junction"]
+    }
+  ]
+}
 ```
 
 ## Error Handling Examples

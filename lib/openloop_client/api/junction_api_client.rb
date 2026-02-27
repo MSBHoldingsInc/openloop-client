@@ -59,6 +59,23 @@ module OpenLoop
 
           handle_response(response)
         end
+
+        # https://docs.junction.com/api-reference/lab-testing/psc-info
+        # @param zip_code [String, Integer]
+        # @param lab_id [Integer]
+        # @param radius [Integer]
+        # @return [Hash]
+        def get_psc_info(zip_code:, lab_id:, radius: 50)
+          url = "#{@config.vital_api_url}/v3/order/psc/info"
+          headers = {
+            "x-vital-api-key" => @config.vital_api_key,
+            "accept" => "application/json"
+          }
+          query = { zip_code: zip_code, lab_id: lab_id, radius: radius }
+
+          response = self.class.get(url, headers: headers, query: query)
+          handle_response(response)
+        end
       end
     end
   end
