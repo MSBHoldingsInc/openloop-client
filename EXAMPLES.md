@@ -531,7 +531,7 @@ end
 # Initialize Junction API client
 junction = OpenLoop::Client::API::JunctionApiClient.new
 
-# Get lab test results for a specific order
+# Get information about an area with respect to lab-testing
 # Note: Requires vital_api_key to be configured
 zip_code = "10956" # New City, New York
 radius = 10
