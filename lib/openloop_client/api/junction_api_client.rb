@@ -27,6 +27,22 @@ module OpenLoop
           response = self.class.get(url, headers: headers, query: query)
           handle_response(response)
         end
+
+        # https://docs.junction.com/api-reference/lab-testing/area-info
+        # @param zip_code [String, Integer]
+        # @param radius [Integer]
+        # @return [Hash]
+        def get_area_info(zip_code:, radius: 50)
+          url = "#{@config.vital_api_url}/order/area/info"
+          headers = {
+            "x-vital-api-key" => @config.vital_api_key,
+            "accept" => "application/json"
+          }
+          query = { zip_code: zip_code, radius: radius }
+
+          response = self.class.get(url, headers: headers, query: query)
+          handle_response(response)
+        end
       end
     end
   end

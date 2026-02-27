@@ -521,7 +521,51 @@ results["results"].each do |biomarker|
   puts "  Reference Range: #{biomarker['min_range_value']} - #{biomarker['max_range_value']}"
   puts "  Status: #{biomarker['is_above_max_range'] ? 'High' : biomarker['is_below_min_range'] ? 'Low' : 'Normal'}"
 end
+```
 
+## Lab Area Info API
+
+### Get Lab-Testing Area Information (by zip code)
+
+```ruby
+# Initialize Junction API client
+junction = OpenLoop::Client::API::JunctionApiClient.new
+
+# Get information about an area with respect to lab-testing
+# Note: Requires vital_api_key to be configured
+zip_code = "10956" # New City, New York
+radius = 10
+
+nearby_labs = junction.get_area_info(
+  zip_code: zip_code,
+  radius: radius
+)
+
+# Sample response
+{
+  'zip_code' => '10956',
+  'phlebotomy' => {
+    'is_served' => true,
+    'providers' => [
+      {
+        'name' => 'getlabs',
+        'service_types' => ['appointment-ready']
+      }
+    ]
+  },
+  'central_labs' => {
+    'bioreference' => {
+      'patient_service_centers' => {
+        'appointment_with_vital' => false,
+        'within_radius' => 4,
+        'radius' => '10',
+        'capabilities' => []
+      },
+      'supported_bill_types' => ['patient_bill_passthrough'],
+      'lab_id' => 14
+    }
+  }
+}
 ```
 
 ## Error Handling Examples
