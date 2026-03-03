@@ -680,6 +680,33 @@ junction.get_psc_info(
 }
 ```
 
+
+## Labs API
+
+### Get All Available Labs from Junction
+```ruby
+# Initialize Junction API client
+junction = OpenLoop::Client::API::JunctionApiClient.new
+junction.get_all_labs
+```
+
+#### Example Response
+```ruby
+[
+  {
+    "id": 1,
+    "slug": "labcorp",
+    "name": "LabCorp",
+    "first_line_address": "123 Main St",
+    "city": "San Francisco",
+    "zipcode": "91789",
+    "collection_methods": ["at_home_phlebotomy", "walk_in_test"],
+    "sample_types": ["saliva", "serum"]
+  },
+  # ...
+]
+```
+
 ## Error Handling Examples
 
 ```ruby
