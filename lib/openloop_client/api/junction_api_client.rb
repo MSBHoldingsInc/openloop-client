@@ -76,6 +76,19 @@ module OpenLoop
           response = self.class.get(url, headers: headers, query: query)
           handle_response(response)
         end
+
+        # https://docs.junction.com/api-reference/lab-testing/labs
+        # @return [Array<Hash>]
+        def get_all_labs
+          url = "#{@config.vital_api_url}/lab_tests/labs"
+          headers = {
+            "x-vital-api-key" => @config.vital_api_key,
+            "accept" => "application/json"
+          }
+
+          response = self.class.get(url, headers: headers)
+          handle_response(response)
+        end
       end
     end
   end
