@@ -11,6 +11,7 @@ module OpenLoop
           argument :height, String, required: false
           argument :additional_record_identifier, String, required: false
           argument :location, ::GraphQL::Types::JSON, required: false
+          argument :timezone, String, required: false
 
           field :patient, Types::PatientType, null: true
           field :errors, [String], null: true

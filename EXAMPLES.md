@@ -53,6 +53,7 @@ update_data = {
   dob: "01/01/1990",
   gender: "Male",
   height: "72",
+  timezone: "America/New_York",
   location: {
     id: location_id, # Include location ID when updating existing location
     line1: "123 Main St",
