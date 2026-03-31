@@ -120,6 +120,7 @@ module OpenLoop
                   dob
                   gender
                   height
+                  timezone
                   additional_record_identifier
                   location {
                     city
