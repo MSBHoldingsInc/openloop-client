@@ -405,10 +405,10 @@ module OpenLoop
             "Content-Type" => "application/json",
             "AuthorizationSource" => "API"
           }
+          headers["AuthorizationShard"] = @config.healthie_authorization_shard if @config.healthie_authorization_shard
 
           if @config.openloop_api_key
             headers["Authorization"] = "Bearer #{@config.openloop_api_key}"
-            headers["AuthorizationShard"] = @config.healthie_authorization_shard if @config.healthie_authorization_shard
           else
             headers["Authorization"] = "Basic #{@config.healthie_api_key}"
           end
